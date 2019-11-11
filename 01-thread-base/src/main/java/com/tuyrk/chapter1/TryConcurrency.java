@@ -43,7 +43,8 @@ public class TryConcurrency {
             println("Task j=>" + j);
         }*/
 
-        new Thread("READ-Thread") {
+        // 5. 交替执行读写操作
+        /*new Thread("READ-Thread") {
             @Override
             public void run() {
                 readFromDataBase();
@@ -54,7 +55,19 @@ public class TryConcurrency {
             public void run() {
                 writeDataToFile();
             }
-        }.start();
+        }.start();*/
+
+        // 6. 线程不能被start()两次以及上
+        Thread t1 = new Thread("READ-Thread") {
+            @Override
+            public void run() {
+                println(Thread.currentThread().getName());
+                readFromDataBase();
+            }
+        };
+        t1.start();
+        // t1.start();
+        // t1.run();
     }
 
     /**
@@ -64,7 +77,7 @@ public class TryConcurrency {
         // read data from database and handle it
         try {
             println("Begin read data from db.");
-            Thread.sleep(1000 * 50L);
+            Thread.sleep(1000 * 1L);
             println("Read data done and start handle it.");
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -79,7 +92,7 @@ public class TryConcurrency {
         // write data to file
         try {
             println("Begin write data to file.");
-            Thread.sleep(1000 * 100L);
+            Thread.sleep(1000 * 1L);
             println("Write data done and start handle it.");
         } catch (InterruptedException e) {
             e.printStackTrace();
