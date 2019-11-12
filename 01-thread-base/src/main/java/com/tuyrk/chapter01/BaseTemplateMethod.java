@@ -1,4 +1,4 @@
-package com.tuyrk.chapter1;
+package com.tuyrk.chapter01;
 
 public abstract class BaseTemplateMethod {
     public static void main(String[] args) {
@@ -12,7 +12,6 @@ public abstract class BaseTemplateMethod {
         t1.print("Hello Thread");
 
         BaseTemplateMethod t2 = new BaseTemplateMethod() {
-
             @Override
             protected void wrapPrint(String message) {
                 System.out.println("+" + message + "+");

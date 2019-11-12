@@ -1,4 +1,4 @@
-package com.tuyrk.chapter1;
+package com.tuyrk.chapter01;
 
 /**
  * 读数据库的同时去做其他事情
