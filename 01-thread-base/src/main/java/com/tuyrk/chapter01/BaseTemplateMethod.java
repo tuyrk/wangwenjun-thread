@@ -3,7 +3,6 @@ package com.tuyrk.chapter01;
 public abstract class BaseTemplateMethod {
     public static void main(String[] args) {
         BaseTemplateMethod t1 = new BaseTemplateMethod() {
-
             @Override
             protected void wrapPrint(String message) {
                 System.out.println("*" + message + "*");
