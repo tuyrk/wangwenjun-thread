@@ -1,7 +1,7 @@
 package com.tuyrk.chapter04;
 
 public class DaemonThread2 {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         Thread thread = new Thread(() -> {
             Thread innerThread = new Thread(() -> {
                 try {
@@ -28,9 +28,5 @@ public class DaemonThread2 {
 
         // thread.setDaemon(true);
         thread.start();
-
-        while (true) {
-
-        }
     }
 }
