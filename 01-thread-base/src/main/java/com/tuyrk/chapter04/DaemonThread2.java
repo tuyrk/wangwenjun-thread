@@ -1,5 +1,12 @@
 package com.tuyrk.chapter04;
 
+/**
+ * 问题：
+ * 1. 在非守护线程A里创建守护线程B，当线程A结束后，线程B会自动结束么？
+ * 线程B会自动结束
+ * 2. 在非守护线程A里创建非守护线程B，当线程A结束后，线程B会自动结束么，JVM可以正常退出么？
+ * 线程B不会自动结束，仍然在运行。
+ */
 public class DaemonThread2 {
     public static void main(String[] args) {
         Thread thread = new Thread(() -> {
