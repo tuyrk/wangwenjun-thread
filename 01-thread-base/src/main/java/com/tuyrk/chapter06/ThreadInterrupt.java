@@ -1,5 +1,13 @@
 package com.tuyrk.chapter06;
 
+/**
+ * 1. 中断线程：interrupt();
+ * sleep().
+ * join().
+ * wait().
+ * <p>
+ * 2. isInterrupted()和interrupted()方法
+ */
 public class ThreadInterrupt {
     private static final Object MONITOR = new Object();
 
