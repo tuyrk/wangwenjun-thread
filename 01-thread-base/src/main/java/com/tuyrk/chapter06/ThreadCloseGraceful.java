@@ -3,6 +3,8 @@ package com.tuyrk.chapter06;
 /**
  * 优雅地停止线程 Graceful thread stop
  * 1. 使用开关变量控制是否启动
+ *
+ * @author tuyrk
  */
 public class ThreadCloseGraceful {
     private static class Worker extends Thread {
