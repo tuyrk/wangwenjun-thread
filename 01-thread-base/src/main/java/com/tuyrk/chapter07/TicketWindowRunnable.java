@@ -15,6 +15,7 @@ public class TicketWindowRunnable implements Runnable {
     public void run() {
         while (true) {
             // 单线程运行synchronized代码块里边的内容
+            // 1
             synchronized (MONITOR) {
                 if (index > MAX) {
                     break;
@@ -27,6 +28,7 @@ public class TicketWindowRunnable implements Runnable {
 
                 System.out.println(Thread.currentThread().getName() + " 的号码是：" + (index++));
             }
+            // 2
         }
     }
 }
