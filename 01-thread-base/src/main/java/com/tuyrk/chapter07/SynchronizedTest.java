@@ -2,6 +2,7 @@ package com.tuyrk.chapter07;
 
 /**
  * synchronized关键字到底是什么？
+ * synchronized同步代码块
  *
  * @author tuyrk
  */
