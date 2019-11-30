@@ -1,5 +1,33 @@
 # 汪文君Java并发编程第一阶段（Java多线程基础知识）
 
+## 简介
+汪文君Java并发编程第一阶段（Java多线程基础知识）学习源码
+
+## 目录
+
+### 20191111：chapter01
+多线程示例、模版类介绍
+
+### 20191111：chapter02
+多线程实现银行排队叫号（Thread、Runnable）、策略模式在Thread和Runnable使用
+
+### 20191112：chapter03
+Thread构造方法、ThreadGroup、多线程与虚拟机栈
+
+### 20191113：chapter04
+守护线程、线程ID、线程优先级
+
+### 20191113：chapter05
+join()
+
+### 20191114：chapter06
+interrupt()、isInterrupted()、interrupted()、优雅地停止线程、暴力关闭线程
+
+### 20191125：chapter07
+数据同步、synchronized代码块、synchronized方法、验证This锁、验证Class锁
+
+
+## 课程目录
 1. [课程大纲及主要内容介绍](doc/101-syllabus.md)
 2. [简单介绍什么是线程](doc/102-what-is-thread.md)
 3. [创建并启动线程](doc/103-create-thread.md)
