@@ -64,7 +64,7 @@ public class ProduceConsumerVersion2 {
 
 
         // 多个生产者、消费者线程运行时，会产生一些问题
-        new Thread(() -> {
+        /*new Thread(() -> {
             while (true) {
                 pc.produce();
             }
@@ -73,6 +73,6 @@ public class ProduceConsumerVersion2 {
             while (true) {
                 pc.consume();
             }
-        }, "C1").start();
+        }, "C1").start();*/
     }
 }
