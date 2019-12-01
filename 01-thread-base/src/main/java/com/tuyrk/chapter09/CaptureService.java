@@ -1,4 +1,4 @@
-package com.tuyrk.chapter9;
+package com.tuyrk.chapter09;
 
 import java.util.*;
 import java.util.stream.Stream;
