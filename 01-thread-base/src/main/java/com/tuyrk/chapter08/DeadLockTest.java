@@ -1,4 +1,4 @@
-package com.tuyrk.chapter8;
+package com.tuyrk.chapter08;
 
 /**
  * 死锁案例：
