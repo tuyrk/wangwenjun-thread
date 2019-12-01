@@ -4,6 +4,7 @@ import java.util.stream.Stream;
 
 /**
  * 优化多线程下的生产者消费者模型，避免多生产者-多消费者造成的程序假死
+ *
  * @author tuyrk
  */
 public class ProduceConsumerVersion3 {
