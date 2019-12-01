@@ -1,4 +1,4 @@
-package com.tuyrk.chapter9;
+package com.tuyrk.chapter09;
 
 /**
  * 线程通信（生产者-消费者）
