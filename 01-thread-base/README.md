@@ -30,7 +30,10 @@ interrupt()、isInterrupted()、interrupted()、优雅地停止线程、暴力�
 死锁案例
 
 ### 20191130：chapter09
-线程通信（生产者-消费者,wait/notify）
+线程通信（生产者-消费者,wait/notify）、多生产者-多消费者模型、wait和sleep的区别、多数据采集案例
+
+### 20191130：chapter10
+自定义显式锁、
 
 ## 课程目录
 1. [课程大纲及主要内容介绍](doc/101-syllabus.md)
