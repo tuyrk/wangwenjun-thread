@@ -19,6 +19,8 @@ public class BooleanLock implements Lock {
 
     private Collection<Thread> blockedThreadCollection = new ArrayList<>();
 
+    private Thread currentThread;
+
     public BooleanLock() {
         this.initValue = false;
     }
@@ -32,20 +34,39 @@ public class BooleanLock implements Lock {
         }
         // 锁未被使用，抢到锁立即设置initValue的值
         this.initValue = true;
+        this.currentThread = Thread.currentThread();
         blockedThreadCollection.remove(Thread.currentThread());
     }
 
     @Override
-    public void lock(long mills) throws InterruptedException, TimeOutException {
+    public synchronized void lock(long mills) throws InterruptedException, TimeOutException {
+        if (mills <= 0) {
+            lock();
+        }
 
+        long hasRemaining = mills;
+        long endTime = System.currentTimeMillis() + mills;
+        while (initValue) {
+            if (hasRemaining <= 0) {
+                throw new TimeOutException("Time Out");
+            }
+            blockedThreadCollection.add(Thread.currentThread());
+            this.wait(mills);
+            hasRemaining = endTime - System.currentTimeMillis();
+            // System.out.println(Thread.currentThread().getName() + ">>" + hasRemaining);
+        }
+        this.initValue = true;
+        this.currentThread = Thread.currentThread();
     }
 
     @Override
     public synchronized void unlock() {
         // 释放锁
-        this.initValue = false;
-        Optional.of(Thread.currentThread().getName() + " release the lock monitor.").ifPresent(System.out::println);
-        this.notifyAll();
+        if (Thread.currentThread() == currentThread) {
+            this.initValue = false;
+            Optional.of(Thread.currentThread().getName() + " release the lock monitor.").ifPresent(System.out::println);
+            this.notifyAll();
+        }
     }
 
     @Override
