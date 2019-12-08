@@ -10,6 +10,7 @@ public class ThreadException {
     private static final int B = 0;
 
     public static void main(String[] args) {
+        /// 捕获线程运行期间的异常
         /*Thread t = new Thread(() -> {
             try {
                 Thread.sleep(1_000L);
@@ -28,6 +29,7 @@ public class ThreadException {
             System.out.println(thread.getThreadGroup().getParent().getName());
         });*/
 
+        // stack trace
         new Test1().test();
     }
 }
