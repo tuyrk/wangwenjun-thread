@@ -33,7 +33,13 @@ interrupt()、isInterrupted()、interrupted()、优雅地停止线程、暴力�
 线程通信（生产者-消费者,wait/notify）、多生产者-多消费者模型、wait和sleep的区别、多数据采集案例
 
 ### 20191130：chapter10
-自定义显式锁、
+自定义显式锁、自锁自解、超时锁
+
+### 20191207：chapter11
+钩子程序、捕获线程异常、StackTrace
+
+### 20191208：chapter12
+线程组的创建、ThreadGroup API
 
 ## 课程目录
 1. [课程大纲及主要内容介绍](doc/101-syllabus.md)
