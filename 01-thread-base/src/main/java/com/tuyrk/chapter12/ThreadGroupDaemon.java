@@ -1,6 +1,7 @@
 package com.tuyrk.chapter12;
 
 /**
+ * ThreadGroup API介绍之二
  * 测试setDaemon
  *
  * @author tuyrk
@@ -22,9 +23,9 @@ public class ThreadGroupDaemon {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println(tg3.isDestroyed());// true
+        System.out.println(tg3.isDestroyed());// false
         // 手动回收ThreadGroup
         tg3.destroy();
-        System.out.println(tg3.isDestroyed());
+        System.out.println(tg3.isDestroyed());// true
     }
 }
