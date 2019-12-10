@@ -44,10 +44,10 @@ public class SimpleThreadPool {
     private static final int DEFAULT_TASK_QUEUE_SIZE = 2000;
 
     /**
-     * 默认拒绝策略
+     * 默认拒绝策略-抛出异常
      */
     public static final DiscardPolicy DEFAULT_DISCARD_POLICY = () -> {
-        throw new DiscardException("");
+        throw new DiscardException("Discard This Task.");
     };
 
     /**
