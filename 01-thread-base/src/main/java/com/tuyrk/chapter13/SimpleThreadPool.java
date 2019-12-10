@@ -29,6 +29,11 @@ public class SimpleThreadPool {
     private final DiscardPolicy discardPolicy;
 
     /**
+     * 线程池是否被销毁
+     */
+    private volatile boolean destory = false;
+
+    /**
      * 默认线程池大小
      */
     private static final int DEFAULT_SIZE = 10;
@@ -99,13 +104,57 @@ public class SimpleThreadPool {
      * @param runnable 任务
      */
     public void submit(Runnable runnable) {
+        // 如果线程池被销毁，不能添加任务到任务队列
+        if (destory) {
+            throw new IllegalThreadStateException("The thread pool already destroy and not allow submit task.");
+        }
         synchronized (TASK_QUEUE) {
+            // 任务队列数量超过阈值，则执行拒绝策略
             if (TASK_QUEUE.size() > queueSize) {
                 discardPolicy.discard();
             }
             TASK_QUEUE.addLast(runnable);
             TASK_QUEUE.notifyAll();
         }
+    }
+
+    /**
+     * 关闭线程池中的线程
+     *
+     * @throws InterruptedException
+     */
+    public void shutdown() throws InterruptedException {
+        // 当任务队列还有任务，则稍微等待。
+        while (!TASK_QUEUE.isEmpty()) {
+            Thread.sleep(50);
+        }
+        // 判断线程中有没有正在运行的任务
+        int initVal = THREAD_QUEUE.size();
+        while (initVal > 0) {
+            for (WorkerTask task : THREAD_QUEUE) {
+                if (task.getTaskState() == TaskState.BLOCKED) {
+                    task.interrupt();
+                    task.close();
+                    initVal--;
+                } else {
+                    Thread.sleep(10);
+                }
+            }
+        }
+        this.destory = true;
+        System.out.println("The thread pool disposed.");
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public int getQueueSize() {
+        return queueSize;
+    }
+
+    public boolean destory() {
+        return destory;
     }
 
     /**
@@ -162,7 +211,6 @@ public class SimpleThreadPool {
         FREE, RUNNING, BLOCKED, DEAD
     }
 
-
     /**
      * 拒绝策略
      */
@@ -179,9 +227,9 @@ public class SimpleThreadPool {
         }
     }
 
-    public static void main(String[] args) {
-        /*SimpleThreadPool threadPool = new SimpleThreadPool();*/
-        SimpleThreadPool threadPool = new SimpleThreadPool(6, 10, SimpleThreadPool.DEFAULT_DISCARD_POLICY);
+    public static void main(String[] args) throws InterruptedException {
+        SimpleThreadPool threadPool = new SimpleThreadPool();
+        /*SimpleThreadPool threadPool = new SimpleThreadPool(6, 10, SimpleThreadPool.DEFAULT_DISCARD_POLICY);*/
         IntStream.rangeClosed(1, 40).forEach(i -> {
             threadPool.submit(() -> {
                 System.out.printf("The runnable %d be serviced by %s start.\n", i, Thread.currentThread().getName());
@@ -193,5 +241,10 @@ public class SimpleThreadPool {
                 System.out.printf("The runnable %d be serviced by %s finished.\n", i, Thread.currentThread().getName());
             });
         });
+
+        Thread.sleep(10_000);
+        threadPool.shutdown();// 关闭线程池中的线程
+        threadPool.submit(() -> System.out.println("线程池被销毁，不能添加任务到任务队列"));
+
     }
 }
