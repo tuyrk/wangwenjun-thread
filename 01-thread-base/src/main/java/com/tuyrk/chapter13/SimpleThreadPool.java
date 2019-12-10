@@ -8,6 +8,7 @@ import java.util.stream.IntStream;
 
 /**
  * 自定义简单线程池
+ * 任务队列、拒绝策略
  *
  * @author tuyrk
  */
@@ -18,9 +19,31 @@ public class SimpleThreadPool {
     private final int size;
 
     /**
+     * 线程队列的大小
+     */
+    private final int queueSize;
+
+    /**
+     * 拒绝策略
+     */
+    private final DiscardPolicy discardPolicy;
+
+    /**
      * 默认线程池大小
      */
     private static final int DEFAULT_SIZE = 10;
+
+    /**
+     * 默认线程队列的大小
+     */
+    private static final int DEFAULT_TASK_QUEUE_SIZE = 2000;
+
+    /**
+     * 默认拒绝策略
+     */
+    public static final DiscardPolicy DEFAULT_DISCARD_POLICY = () -> {
+        throw new DiscardException("");
+    };
 
     /**
      * 线程名自增序号
@@ -48,11 +71,13 @@ public class SimpleThreadPool {
     private static final List<WorkerTask> THREAD_QUEUE = new ArrayList<>();
 
     public SimpleThreadPool() {
-        this(DEFAULT_SIZE);
+        this(DEFAULT_SIZE, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
     }
 
-    public SimpleThreadPool(int size) {
+    public SimpleThreadPool(int size, int queueSize, DiscardPolicy discardPolicy) {
         this.size = size;
+        this.queueSize = queueSize;
+        this.discardPolicy = discardPolicy;
         init();
     }
 
@@ -75,6 +100,9 @@ public class SimpleThreadPool {
      */
     public void submit(Runnable runnable) {
         synchronized (TASK_QUEUE) {
+            if (TASK_QUEUE.size() > queueSize) {
+                discardPolicy.discard();
+            }
             TASK_QUEUE.addLast(runnable);
             TASK_QUEUE.notifyAll();
         }
@@ -134,8 +162,26 @@ public class SimpleThreadPool {
         FREE, RUNNING, BLOCKED, DEAD
     }
 
+
+    /**
+     * 拒绝策略
+     */
+    public interface DiscardPolicy {
+        void discard() throws DiscardException;
+    }
+
+    /**
+     * 拒绝策略异常
+     */
+    public static class DiscardException extends RuntimeException {
+        public DiscardException(String message) {
+            super(message);
+        }
+    }
+
     public static void main(String[] args) {
-        SimpleThreadPool threadPool = new SimpleThreadPool();
+        /*SimpleThreadPool threadPool = new SimpleThreadPool();*/
+        SimpleThreadPool threadPool = new SimpleThreadPool(6, 10, SimpleThreadPool.DEFAULT_DISCARD_POLICY);
         IntStream.rangeClosed(1, 40).forEach(i -> {
             threadPool.submit(() -> {
                 System.out.printf("The runnable %d be serviced by %s start.\n", i, Thread.currentThread().getName());
