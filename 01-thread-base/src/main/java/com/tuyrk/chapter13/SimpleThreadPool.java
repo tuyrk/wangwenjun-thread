@@ -1,6 +1,7 @@
 package com.tuyrk.chapter13;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,12 +13,23 @@ import java.util.stream.IntStream;
  *
  * @author tuyrk
  */
-public class SimpleThreadPool {
+public class SimpleThreadPool extends Thread {
     /**
-     * 传参线程池大小
+     * 最小线程数量
      */
-    private final int size;
-
+    private int min;
+    /**
+     * 活跃线程数量
+     */
+    private int active;
+    /**
+     * 最大线程数量
+     */
+    private int max;
+    /**
+     * 传参线程池大小(当前线程池中线程的数量)
+     */
+    private int size;
     /**
      * 线程队列的大小
      */
@@ -31,13 +43,20 @@ public class SimpleThreadPool {
     /**
      * 线程池是否被销毁
      */
-    private volatile boolean destory = false;
+    private volatile boolean destroy = false;
 
     /**
-     * 默认线程池大小
+     * 默认最小线程数量
      */
-    private static final int DEFAULT_SIZE = 10;
-
+    private static final int DEFAULT_MIN_SIZE = 4;
+    /**
+     * 默认活跃线程数量
+     */
+    private static final int DEFAULT_ACTIVE_SIZE = 8;
+    /**
+     * 默认最大线程数量
+     */
+    private static final int DEFAULT_MAX_SIZE = 12;
     /**
      * 默认线程队列的大小
      */
@@ -76,20 +95,77 @@ public class SimpleThreadPool {
     private static final List<WorkerTask> THREAD_QUEUE = new ArrayList<>();
 
     public SimpleThreadPool() {
-        this(DEFAULT_SIZE, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
+        this(DEFAULT_MIN_SIZE, DEFAULT_ACTIVE_SIZE, DEFAULT_MAX_SIZE, DEFAULT_TASK_QUEUE_SIZE, DEFAULT_DISCARD_POLICY);
     }
 
-    public SimpleThreadPool(int size, int queueSize, DiscardPolicy discardPolicy) {
-        this.size = size;
+    /**
+     * 构造方法
+     *
+     * @param min           最小线程数量
+     * @param active        活跃线程数量
+     * @param max           最大线程数量
+     * @param queueSize     线程队列的大小
+     * @param discardPolicy 拒绝策略
+     */
+    public SimpleThreadPool(int min, int active, int max, int queueSize, DiscardPolicy discardPolicy) {
+        this.min = min;
+        this.active = active;
+        this.max = max;
         this.queueSize = queueSize;
         this.discardPolicy = discardPolicy;
         init();
     }
 
+    @Override
+    public void run() {
+        while (!destroy) {
+            System.out.printf("Pool#Min:%d,Active:%d,Max:%d,Current:%d,QueueSize:%d\n",
+                    this.min, this.active, this.max, this.size, TASK_QUEUE.size());
+            try {
+                Thread.sleep(5_000L);
+                // 任务队列数量过大，线程队列的数量扩充到active
+                if (size < active && active < TASK_QUEUE.size()) {
+                    IntStream.range(size, active).forEach(i -> createWorkTask());
+                    size = active;
+                    System.out.println("The Pool incremented to active.");
+                }
+                // 任务队列数量过大，线程队列的数量扩充到max
+                else if (size < max && max < TASK_QUEUE.size()) {
+                    IntStream.range(active, max).forEach(i -> createWorkTask());
+                    size = max;
+                    System.out.println("The Pool incremented to max.");
+                }
+                // 任务队列数量为空，线程队列的数量减少到active
+                if (size > active && TASK_QUEUE.isEmpty()) {
+                    System.out.println("=========Reduce=========");
+                    // 防止其他线程调用submit继续插入任务。
+                    synchronized (TASK_QUEUE) {
+                        int releaseSize = size - active;
+                        for (Iterator<WorkerTask> it = THREAD_QUEUE.iterator(); it.hasNext(); ) {
+                            if (releaseSize <= 0) {
+                                break;
+                            }
+                            WorkerTask task = it.next();
+                            task.interrupt();
+                            task.close();
+                            it.remove();
+                            releaseSize--;
+                        }
+                        size = active;
+                    }
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void init() {
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < this.min; i++) {
             createWorkTask();
         }
+        this.size = this.min;
+        this.start();
     }
 
     private void createWorkTask() {
@@ -105,7 +181,7 @@ public class SimpleThreadPool {
      */
     public void submit(Runnable runnable) {
         // 如果线程池被销毁，不能添加任务到任务队列
-        if (destory) {
+        if (destroy) {
             throw new IllegalThreadStateException("The thread pool already destroy and not allow submit task.");
         }
         synchronized (TASK_QUEUE) {
@@ -141,8 +217,24 @@ public class SimpleThreadPool {
                 }
             }
         }
-        this.destory = true;
+        this.destroy = true;
         System.out.println("The thread pool disposed.");
+    }
+
+    public boolean isDestroy() {
+        return destroy;
+    }
+
+    public int getMin() {
+        return min;
+    }
+
+    public int getMax() {
+        return max;
+    }
+
+    public int getActive() {
+        return active;
     }
 
     public int getSize() {
@@ -151,10 +243,6 @@ public class SimpleThreadPool {
 
     public int getQueueSize() {
         return queueSize;
-    }
-
-    public boolean destory() {
-        return destory;
     }
 
     /**
@@ -183,6 +271,7 @@ public class SimpleThreadPool {
                             this.taskState = TaskState.BLOCKED;
                             TASK_QUEUE.wait();
                         } catch (InterruptedException e) {
+                            System.out.println("Reduce.");
                             break OUTER;
                         }
                     }
@@ -234,7 +323,7 @@ public class SimpleThreadPool {
             threadPool.submit(() -> {
                 System.out.printf("The runnable %d be serviced by %s start.\n", i, Thread.currentThread().getName());
                 try {
-                    Thread.sleep(10_000);
+                    Thread.sleep(3_000L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -242,9 +331,8 @@ public class SimpleThreadPool {
             });
         });
 
-        Thread.sleep(10_000);
+        Thread.sleep(40_000L);
         threadPool.shutdown();// 关闭线程池中的线程
         threadPool.submit(() -> System.out.println("线程池被销毁，不能添加任务到任务队列"));
-
     }
 }

@@ -42,7 +42,7 @@ interrupt()、isInterrupted()、interrupted()、优雅地停止线程、暴力�
 线程组的创建、ThreadGroup API
 
 ### 20191209：chapter13
-自定义线程池(任务队列)
+自定义线程池(任务队列)、拒绝策略、停止方法、其他因子（min、max、active）、自动扩充线程数量、闲时自动回收线程
 
 ## 课程目录
 1. [课程大纲及主要内容介绍](doc/101-syllabus.md)
