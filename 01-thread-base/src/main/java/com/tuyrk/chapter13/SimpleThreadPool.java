@@ -135,11 +135,11 @@ public class SimpleThreadPool extends Thread {
                     size = max;
                     System.out.println("The Pool incremented to max.");
                 }
-                // 任务队列数量为空，线程队列的数量减少到active
-                if (size > active && TASK_QUEUE.isEmpty()) {
-                    System.out.println("=========Reduce=========");
-                    // 防止其他线程调用submit继续插入任务。
-                    synchronized (TASK_QUEUE) {
+                // 防止新插入任务队列的任务使用线程队列中的线程执行任务。
+                synchronized (THREAD_QUEUE) {
+                    // 任务队列数量为空，线程队列的数量减少到active
+                    if (size > active && TASK_QUEUE.isEmpty()) {
+                        System.out.println("=========Reduce=========");
                         int releaseSize = size - active;
                         for (Iterator<WorkerTask> it = THREAD_QUEUE.iterator(); it.hasNext(); ) {
                             if (releaseSize <= 0) {
@@ -161,9 +161,7 @@ public class SimpleThreadPool extends Thread {
     }
 
     private void init() {
-        for (int i = 0; i < this.min; i++) {
-            createWorkTask();
-        }
+        IntStream.range(0, this.min).forEach(i -> createWorkTask());
         this.size = this.min;
         this.start();
     }
@@ -205,18 +203,22 @@ public class SimpleThreadPool extends Thread {
             Thread.sleep(50);
         }
         // 判断线程中有没有正在运行的任务
-        int initVal = THREAD_QUEUE.size();
-        while (initVal > 0) {
-            for (WorkerTask task : THREAD_QUEUE) {
-                if (task.getTaskState() == TaskState.BLOCKED) {
-                    task.interrupt();
-                    task.close();
-                    initVal--;
-                } else {
-                    Thread.sleep(10);
+        synchronized (THREAD_QUEUE) {
+            int initVal = THREAD_QUEUE.size();
+            while (initVal > 0) {
+                for (WorkerTask task : THREAD_QUEUE) {
+                    if (task.getTaskState() == TaskState.BLOCKED) {
+                        task.interrupt();
+                        task.close();
+                        initVal--;
+                    } else {
+                        Thread.sleep(10);
+                    }
                 }
             }
         }
+
+        System.out.println("Group active count is " + GROUP.activeCount());
         this.destroy = true;
         System.out.println("The thread pool disposed.");
     }
@@ -271,7 +273,7 @@ public class SimpleThreadPool extends Thread {
                             this.taskState = TaskState.BLOCKED;
                             TASK_QUEUE.wait();
                         } catch (InterruptedException e) {
-                            System.out.println("Reduce.");
+                            System.out.println("Closed.");
                             break OUTER;
                         }
                     }
@@ -284,7 +286,6 @@ public class SimpleThreadPool extends Thread {
                     runnable.run();
                     this.taskState = TaskState.FREE;
                 }
-
             }
         }
 
@@ -331,8 +332,8 @@ public class SimpleThreadPool extends Thread {
             });
         });
 
-        Thread.sleep(40_000L);
+        Thread.sleep(30_000L);
         threadPool.shutdown();// 关闭线程池中的线程
-        threadPool.submit(() -> System.out.println("线程池被销毁，不能添加任务到任务队列"));
+        /*threadPool.submit(() -> System.out.println("线程池被销毁，不能添加任务到任务队列"));*/
     }
 }
