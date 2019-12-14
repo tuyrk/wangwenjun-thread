@@ -20,6 +20,7 @@
 
     <modules>
         <module>01-thread-base</module>
+        <module>02-thread-design-pattern</module>
     </modules>
 
     <dependencies>
