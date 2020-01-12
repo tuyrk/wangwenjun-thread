@@ -5,7 +5,6 @@ package com.tuyrk.chapter04.lifecycle;
  *
  * @author tuyrk
  */
-
 public enum RunnableState {
     RUNNING, ERROR, DONE;
 }

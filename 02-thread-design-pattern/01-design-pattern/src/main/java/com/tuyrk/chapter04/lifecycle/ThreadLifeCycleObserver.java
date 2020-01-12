@@ -1,7 +1,5 @@
 package com.tuyrk.chapter04.lifecycle;
 
-import java.util.List;
-
 /**
  * 线程生命周期观察者实现类
  *
