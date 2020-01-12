@@ -10,26 +10,6 @@ import java.util.List;
 public class ThreadLifeCycleObserver implements LifeCycleListener {
     private static final Object LOCK = new Object();
 
-    public void concurrentQuery(List<String> ids) {
-        if (ids == null || ids.isEmpty()) {
-            return;
-        }
-        ids.forEach(id -> new Thread(new ObservableRunnable(this) {
-            @Override
-            public void run() {
-                try {
-                    notifyChange(new RunnableEvent(RunnableState.RUNNING, Thread.currentThread(), null));
-                    System.out.println("query for the id " + id);
-                    Thread.sleep(1000L);
-                    // int x = 1 / 0;
-                    notifyChange(new RunnableEvent(RunnableState.DONE, Thread.currentThread(), null));
-                } catch (Exception e) {
-                    notifyChange(new RunnableEvent(RunnableState.ERROR, Thread.currentThread(), e));
-                }
-            }
-        }, id).start());
-    }
-
     @Override
     public void onEvent(RunnableEvent event) {
         synchronized (LOCK) {
