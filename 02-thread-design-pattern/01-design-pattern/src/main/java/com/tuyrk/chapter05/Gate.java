@@ -2,6 +2,7 @@ package com.tuyrk.chapter05;
 
 /**
  * 门。共享资源
+ * SharedResource
  *
  * @author tuyrk
  */
@@ -10,7 +11,15 @@ public class Gate {
     private String name = "Nobody";
     private String address = "Nowhere";
 
-    public void pass(String name, String address) {
+    /**
+     * 临界值
+     * 添加this锁
+     *
+     * @param name    姓名
+     * @param address 地址
+     */
+    public synchronized void pass(String name, String address) {
+        /* race 竞争 */
         this.counter++;
         this.name = name;
         this.address = address;
