@@ -7,14 +7,14 @@ import java.util.Random;
  *
  * @author tuyrk
  */
-public class WriteWorker extends Thread {
+public class WriterWorker extends Thread {
     private static final Random RANDOM = new Random(System.currentTimeMillis());
     private final SharedData data;
     private final String filler;
 
     private int index = 0;
 
-    public WriteWorker(SharedData data, String filler) {
+    public WriterWorker(SharedData data, String filler) {
         this.data = data;
         this.filler = filler;
     }

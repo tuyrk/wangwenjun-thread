@@ -24,6 +24,19 @@ public class ReadWriteLock {
     private int waitingWriters = 0;
 
     /**
+     * 写线程是否优先执行
+     */
+    private boolean preferWriter;
+
+    public ReadWriteLock() {
+        this(true);
+    }
+
+    public ReadWriteLock(boolean preferWriter) {
+        this.preferWriter = preferWriter;
+    }
+
+    /**
      * 读加锁
      *
      * @throws InterruptedException
@@ -32,7 +45,8 @@ public class ReadWriteLock {
         this.waitingReaders++;
         try {
             // 有写线程正在操作，则不允许读操作执行
-            while (writingWriters > 0) {
+            while (writingWriters > 0
+                    || (preferWriter && waitingWriters > 0)) {
                 this.wait();
             }
             // 没有写线程，则读操作执行
