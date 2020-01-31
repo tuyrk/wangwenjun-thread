@@ -32,6 +32,7 @@ public class AsyncFuture<T> implements Future<T> {
     public T get() throws InterruptedException {
         synchronized (this) {
             // 如果调用get()时任务还未执行完成，则让其wait()等待
+            // 此处仍会使调用者线程一直轮询等待
             while (!done) {
                 this.wait();
             }
