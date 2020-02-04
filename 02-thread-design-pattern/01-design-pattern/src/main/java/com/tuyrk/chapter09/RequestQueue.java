@@ -25,7 +25,7 @@ public class RequestQueue {
                 try {
                     queue.wait();
                 } catch (InterruptedException e) {
-                    break;
+                    return null;
                 }
             }
 
