@@ -32,6 +32,9 @@ volatile关键字、Java内存模型、CPU缓存不一致及解决
 ### 20200202：chapter09
 线程的Guarded Suspension设计模式
 
+### 20200205：chapter10
+ThreadLocal
+
 ## 课程目录
 1. [课程大纲及主要内容介绍]()
 2. [介绍四种Singleton方式的优缺点在多线程情况下]()
